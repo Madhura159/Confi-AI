@@ -32,12 +32,12 @@ export const ChallengeHub: React.FC = () => {
     try {
       const plan = await aiService.generateChallengePlan(goalInput);
       setGeneratedPlan({
-        id: Date.now().toString(),
+        id: `ch-${Date.now()}`,
         title: plan.title,
         description: plan.description,
         status: ChallengeStatus.ACTIVE,
         startDate: new Date().toISOString(),
-        endDate: new Date(Date.now() + 14 * 86400000).toISOString(), // 2 weeks default
+        endDate: new Date(Date.now() + 14 * 86400000).toISOString(),
         subTasks: plan.subTasks.map((t, i) => ({ id: `st-${Date.now()}-${i}`, title: t, isCompleted: false }))
       });
     } catch (e) {
@@ -65,13 +65,11 @@ export const ChallengeHub: React.FC = () => {
       t.id === taskId ? { ...t, isCompleted: !t.isCompleted } : t
     );
     
-    // Check if all completed
     const allDone = updatedSubTasks.every(t => t.isCompleted);
     const newStatus = allDone ? ChallengeStatus.COMPLETED : ChallengeStatus.ACTIVE;
 
     const updatedChallenge = { ...challenge, subTasks: updatedSubTasks, status: newStatus };
     
-    // Optimistic update
     setChallenges(prev => prev.map(c => c.id === challengeId ? updatedChallenge : c));
     await storageService.updateChallenge(updatedChallenge);
   };
@@ -84,7 +82,7 @@ export const ChallengeHub: React.FC = () => {
   };
 
   return (
-    <div className="p-8 max-w-5xl mx-auto">
+    <div className="p-8 max-w-5xl mx-auto animate-fade-in">
       <header className="flex justify-between items-center mb-8">
         <div>
           <h2 className="text-3xl font-bold text-white">Challenge Hub</h2>
@@ -98,9 +96,8 @@ export const ChallengeHub: React.FC = () => {
         </button>
       </header>
 
-      {/* Create Modal / Section */}
       {showForm && (
-        <div className="bg-gray-800 border border-gray-700 rounded-xl p-6 mb-8 animate-fade-in-down">
+        <div className="bg-gray-800 border border-gray-700 rounded-xl p-6 mb-8 animate-float">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-xl font-semibold text-white">Create with AI Coach</h3>
             <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-white">Close</button>
@@ -164,7 +161,6 @@ export const ChallengeHub: React.FC = () => {
         </div>
       )}
 
-      {/* List */}
       {loading ? (
         <div className="flex justify-center py-12"><Loader /></div>
       ) : (

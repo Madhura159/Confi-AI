@@ -2,12 +2,16 @@
 import React, { useState, useEffect } from 'react';
 import { storageService } from '../services/storageService';
 import { aiService } from '../services/aiService';
-import { Challenge, ChallengeStatus, JournalEntry } from '../types';
+import { Challenge, ChallengeStatus, JournalEntry, UserProfile } from '../types';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { PenTool, MessageSquare, Save, BookOpen, Calendar } from 'lucide-react';
 import { Loader } from './Loader';
 
-export const ProgressTracker: React.FC = () => {
+interface ProgressTrackerProps {
+  user: UserProfile;
+}
+
+export const ProgressTracker: React.FC<ProgressTrackerProps> = ({ user }) => {
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [journalEntries, setJournalEntries] = useState<JournalEntry[]>([]);
   const [reflectionPrompt, setReflectionPrompt] = useState('');
@@ -52,6 +56,7 @@ export const ProgressTracker: React.FC = () => {
     setSavingEntry(true);
     const newEntry: JournalEntry = {
       id: Date.now().toString(),
+      userId: user.id,
       date: new Date().toISOString(),
       prompt: reflectionPrompt || "Self Reflection",
       content: journalEntry

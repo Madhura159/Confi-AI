@@ -14,7 +14,7 @@ export enum ChallengeStatus {
 }
 
 export interface UserProfile {
-  id: string;
+  id: string; // Firestore Document ID
   username: string;
   joinedDate: string;
 }
@@ -27,6 +27,7 @@ export interface SubTask {
 
 export interface Challenge {
   id: string;
+  userId: string;
   title: string;
   description: string;
   status: ChallengeStatus;
@@ -37,12 +38,14 @@ export interface Challenge {
 
 export interface Affirmation {
   id: string;
+  userId: string;
   text: string;
   date: string;
 }
 
 export interface JournalEntry {
   id: string;
+  userId: string;
   date: string;
   prompt: string;
   content: string;
@@ -59,4 +62,11 @@ export interface UserStats {
   completedChallenges: number;
   activeStreaks: number;
   moodScore: number; // 1-10
+}
+
+// Extend Window to include the injected Firebase config
+declare global {
+  interface Window {
+    __firebase_config: any;
+  }
 }

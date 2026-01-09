@@ -1,11 +1,16 @@
+
 import React, { useState, useEffect } from 'react';
 import { storageService } from '../services/storageService';
 import { aiService } from '../services/aiService';
-import { Affirmation } from '../types';
+import { Affirmation, UserProfile } from '../types';
 import { Loader } from './Loader';
 import { Sun, RefreshCw, Quote } from 'lucide-react';
 
-export const AffirmationZone: React.FC = () => {
+interface AffirmationZoneProps {
+  user: UserProfile;
+}
+
+export const AffirmationZone: React.FC<AffirmationZoneProps> = ({ user }) => {
   const [affirmations, setAffirmations] = useState<Affirmation[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -23,6 +28,7 @@ export const AffirmationZone: React.FC = () => {
     const text = await aiService.generateAffirmation();
     const newAffirmation: Affirmation = {
       id: Date.now().toString(),
+      userId: user.id,
       text,
       date: new Date().toISOString()
     };

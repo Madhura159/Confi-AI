@@ -38,9 +38,9 @@ const App: React.FC = () => {
     switch (currentView) {
       case ViewState.DASHBOARD: return <Dashboard user={user} />;
       case ViewState.CHALLENGES: return <ChallengeHub />;
-      case ViewState.PROGRESS: return <ProgressTracker />;
+      case ViewState.PROGRESS: return <ProgressTracker user={user} />;
       case ViewState.LEARNING: return <LearningCenter />;
-      case ViewState.AFFIRMATIONS: return <AffirmationZone />;
+      case ViewState.AFFIRMATIONS: return <AffirmationZone user={user} />;
       default: return <Dashboard user={user} />;
     }
   };

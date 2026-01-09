@@ -1,38 +1,40 @@
-
 import { UserProfile } from '../types';
 
-const USERS_KEY = 'confi_users';
+const STORAGE_KEY = 'confi_users';
 
-// Helper to simulate API delay
-const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+const getUsers = (): UserProfile[] => {
+  const data = localStorage.getItem(STORAGE_KEY);
+  return data ? JSON.parse(data) : [];
+};
+
+const saveUsers = (users: UserProfile[]) => {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+};
 
 export const authService = {
   login: async (username: string): Promise<UserProfile | null> => {
-    await delay(800);
-    const usersRaw = localStorage.getItem(USERS_KEY);
-    const users: UserProfile[] = usersRaw ? JSON.parse(usersRaw) : [];
-    
+    // Simulate slight delay for realism
+    await new Promise(r => setTimeout(r, 400));
+    const users = getUsers();
     const user = users.find(u => u.username.toLowerCase() === username.toLowerCase());
     return user || null;
   },
 
   signup: async (username: string): Promise<UserProfile> => {
-    await delay(800);
-    const usersRaw = localStorage.getItem(USERS_KEY);
-    const users: UserProfile[] = usersRaw ? JSON.parse(usersRaw) : [];
+    await new Promise(r => setTimeout(r, 600));
+    const users = getUsers();
     
-    if (users.find(u => u.username.toLowerCase() === username.toLowerCase())) {
-      throw new Error("Username already exists");
+    if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
+      throw new Error("Username already taken. Please pick another one.");
     }
 
     const newUser: UserProfile = {
-      id: `user_${Date.now()}`,
+      id: `u-${Date.now()}`,
       username,
       joinedDate: new Date().toISOString()
     };
 
-    users.push(newUser);
-    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+    saveUsers([...users, newUser]);
     return newUser;
   }
 };

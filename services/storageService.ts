@@ -1,84 +1,66 @@
-
 import { Challenge, Affirmation, JournalEntry } from '../types';
 
-// Helper to simulate delay for realism
-const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
-
-// We will store the current user ID here to prefix keys
 let currentUserId: string | null = null;
 
-const getChallengeKey = () => `confi_challenges_${currentUserId || 'guest'}`;
-const getAffirmationKey = () => `confi_affirmations_${currentUserId || 'guest'}`;
-const getJournalKey = () => `confi_journal_${currentUserId || 'guest'}`;
+const getStorageKey = (type: string) => `confi_${currentUserId}_${type}`;
+
+const loadData = <T>(type: string): T[] => {
+  if (!currentUserId) return [];
+  const data = localStorage.getItem(getStorageKey(type));
+  return data ? JSON.parse(data) : [];
+};
+
+const saveData = <T>(type: string, data: T[]) => {
+  if (!currentUserId) return;
+  localStorage.setItem(getStorageKey(type), JSON.stringify(data));
+};
 
 export const storageService = {
-  // Set the context when user logs in
   setContext: (userId: string) => {
     currentUserId = userId;
   },
 
+  // --- CHALLENGES ---
   getChallenges: async (): Promise<Challenge[]> => {
-    if (!currentUserId) return [];
-    await delay(300);
-    const data = localStorage.getItem(getChallengeKey());
-    return data ? JSON.parse(data) : [];
+    return loadData<Challenge>('challenges');
   },
 
   saveChallenge: async (challenge: Challenge): Promise<void> => {
-    if (!currentUserId) return;
-    await delay(300);
-    const current = await storageService.getChallenges();
-    const updated = [...current, challenge];
-    localStorage.setItem(getChallengeKey(), JSON.stringify(updated));
+    const challenges = loadData<Challenge>('challenges');
+    saveData('challenges', [challenge, ...challenges]);
   },
 
   updateChallenge: async (updatedChallenge: Challenge): Promise<void> => {
-    if (!currentUserId) return;
-    await delay(200);
-    const current = await storageService.getChallenges();
-    const index = current.findIndex(c => c.id === updatedChallenge.id);
+    const challenges = loadData<Challenge>('challenges');
+    const index = challenges.findIndex(c => c.id === updatedChallenge.id);
     if (index !== -1) {
-      current[index] = updatedChallenge;
-      localStorage.setItem(getChallengeKey(), JSON.stringify(current));
+      challenges[index] = updatedChallenge;
+      saveData('challenges', challenges);
     }
   },
 
   deleteChallenge: async (id: string): Promise<void> => {
-    if (!currentUserId) return;
-    await delay(200);
-    const current = await storageService.getChallenges();
-    const filtered = current.filter(c => c.id !== id);
-    localStorage.setItem(getChallengeKey(), JSON.stringify(filtered));
+    const challenges = loadData<Challenge>('challenges');
+    saveData('challenges', challenges.filter(c => c.id !== id));
   },
 
+  // --- AFFIRMATIONS ---
   getAffirmations: async (): Promise<Affirmation[]> => {
-    if (!currentUserId) return [];
-    const data = localStorage.getItem(getAffirmationKey());
-    return data ? JSON.parse(data) : [];
+    return loadData<Affirmation>('affirmations');
   },
 
   saveAffirmation: async (affirmation: Affirmation): Promise<void> => {
-    if (!currentUserId) return;
-    await delay(200);
-    const current = await storageService.getAffirmations();
-    // Keep only last 10
-    const updated = [affirmation, ...current].slice(0, 10);
-    localStorage.setItem(getAffirmationKey(), JSON.stringify(updated));
+    const affirmations = loadData<Affirmation>('affirmations');
+    saveData('affirmations', [affirmation, ...affirmations]);
   },
 
+  // --- JOURNAL ---
   getJournalEntries: async (): Promise<JournalEntry[]> => {
-    if (!currentUserId) return [];
-    await delay(300);
-    const data = localStorage.getItem(getJournalKey());
-    return data ? JSON.parse(data) : [];
+    return loadData<JournalEntry>('journal_entries');
   },
 
   saveJournalEntry: async (entry: JournalEntry): Promise<void> => {
-    if (!currentUserId) return;
-    await delay(300);
-    const current = await storageService.getJournalEntries();
-    // Add to beginning
-    const updated = [entry, ...current];
-    localStorage.setItem(getJournalKey(), JSON.stringify(updated));
+    const entries = loadData<JournalEntry>('journal_entries');
+    saveData('journal_entries', [entry, ...entries]);
   }
 };
